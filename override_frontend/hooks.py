@@ -129,21 +129,27 @@ app_license = "mit"
 # ---------------
 # Override standard doctype classes
 
-# override_doctype_class = {
-# 	"ToDo": "custom_app.overrides.CustomToDo"
-# }
+override_doctype_class = {
+	#"ToDo": "custom_app.overrides.CustomToDo"
+    "CRM Deal": "override_frontend.api.overrides.VONTOCCRMDeal",
+    "CRM Lead": "override_frontend.api.overrides.VONTOCCRMLead", 
+}
 
 # Document Events
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+#	"*": {
+#		"on_update": "method",
+#		"on_cancel": "method",
+#		"on_trash": "method"
+#	}
+	"Assignment": {
+		"after_insert": ["override_frontend.api.assignment.after_insert"],
+		"on_update": ["override_frontend.api.assignment.on_update"],
+	},
+}
 
 # Scheduled Tasks
 # ---------------
@@ -174,9 +180,11 @@ app_license = "mit"
 # Overriding Methods
 # ------------------------------
 #
-# override_whitelisted_methods = {
-# 	"frappe.desk.doctype.event.event.get_events": "override_frontend.event.get_events"
-# }
+override_whitelisted_methods = {
+	#"frappe.desk.doctype.event.event.get_events": "override_frontend.event.get_events"
+    "crm.api.doc.get_assigned_users": "override_frontend.api.crm.get_assigned_users",
+    "crm.api.doc.remove_assignments": "override_frontend.api.crm.remove_assignments"
+    }
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,

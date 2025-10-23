@@ -189,7 +189,7 @@ async function updateAssignees() {
 }
 
 const addAssignees = createResource({
-  url: 'vontoc.api.crm.add_assignments',
+  url: 'override_frontend.api.crm.add_assignments',
   makeParams: (addedAssignees) => ({
     doctype: props.doctype,
     name: props.docname,
@@ -198,9 +198,7 @@ const addAssignees = createResource({
   onSuccess: () => {
     capture('assign_to', { doctype: props.doctype })
   },
-
 })
-
 
 const removeAssignees = createResource({
   url: 'crm.api.doc.remove_assignments',
