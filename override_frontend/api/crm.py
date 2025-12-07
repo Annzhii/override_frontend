@@ -2,7 +2,8 @@ import frappe
 from frappe import _
 from frappe.utils import get_url
 from pushweb.api.push import send_push_to_user
-
+from frappe.utils.data import strip_html
+from frappe.desk.form.document_follow import follow_document
 
 from frappe.desk.doctype.notification_log.notification_log import (
 	enqueue_create_notification,
@@ -12,7 +13,6 @@ from frappe.desk.doctype.notification_log.notification_log import (
 
 @frappe.whitelist()
 def add_assignments(doctype, name, assign_to):
-    print (doctype)
     doctype_route_map = {
         "CRM Lead": "leads",
         "CRM Deal": "deals",
@@ -282,6 +282,3 @@ def add(args=None, *, ignore_permissions=False):
 
 def format_message_for_assign_to(users):
 	return "<br><br>" + "<br>".join(users)
-
-from frappe.utils.data import strip_html
-from frappe.desk.form.document_follow import follow_document

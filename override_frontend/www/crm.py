@@ -14,6 +14,10 @@ no_cache = 1
 
 def get_context():
 	frappe.db.commit()
+	allowed_roles = {"Sales User", "Sales Manager", "Sales Master Manager"}
+	user_roles = set(frappe.get_roles(frappe.session.user))
+	if not (user_roles & allowed_roles):
+		frappe.throw("You do not have permission to access the CRM.", frappe.PermissionError)
 	context = frappe._dict()
 	context.boot = get_boot()
 	if frappe.session.user != "Guest":
