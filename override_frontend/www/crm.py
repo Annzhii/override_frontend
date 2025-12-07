@@ -11,32 +11,27 @@ from frappe.utils.telemetry import capture
 
 no_cache = 1
 
-
 ALLOWED_ROLES = {"Sales User", "Sales Manager", "Sales Master Manager"}
 
-def check_sales_user():
-    """检查当前用户是否属于销售角色"""
+def get_context():
+    # 获取当前用户角色
     user_roles = set(frappe.get_roles(frappe.session.user))
+    
+    # 如果不在允许列表中，直接抛异常
     if not user_roles.intersection(ALLOWED_ROLES):
         frappe.throw(_("You do not have permission to access this page."), frappe.PermissionError)
 
-def get_context():
-    check_sales_user()  # 权限检查
+    # 正常返回上下文
     context = frappe._dict()
     context.boot = get_boot()
-    
-    if frappe.session.user != "Guest":
-        capture("active_site", "crm")
-    
-    return context
 
+    return context
 
 @frappe.whitelist(methods=["POST"], allow_guest=True)
 def get_context_for_dev():
 	if not frappe.conf.developer_mode:
 		frappe.throw("This method is only meant for developer mode")
 	return get_boot()
-
 
 def get_boot():
 	return frappe._dict(
@@ -58,10 +53,8 @@ def get_boot():
 		}
 	)
 
-
 def get_default_route():
 	return "/crm"
-
 
 def run_git_command(command):
 	try:
