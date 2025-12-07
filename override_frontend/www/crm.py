@@ -2,7 +2,7 @@
 # GNU GPLv3 License. See license.txt
 import os
 import subprocess
-
+from frappe import _
 import frappe
 from frappe import safe_decode
 from frappe.integrations.frappe_providers.frappecloud_billing import is_fc_site
@@ -12,17 +12,23 @@ from frappe.utils.telemetry import capture
 no_cache = 1
 
 
+ALLOWED_ROLES = {"Sales User", "Sales Manager", "Sales Master Manager"}
+
+def check_sales_user():
+    """检查当前用户是否属于销售角色"""
+    user_roles = set(frappe.get_roles(frappe.session.user))
+    if not user_roles.intersection(ALLOWED_ROLES):
+        frappe.throw(_("You do not have permission to access this page."), frappe.PermissionError)
+
 def get_context():
-	frappe.db.commit()
-	allowed_roles = {"Sales User", "Sales Manager", "Sales Master Manager"}
-	user_roles = set(frappe.get_roles(frappe.session.user))
-	if not (user_roles & allowed_roles):
-		frappe.throw("You do not have permission to access the CRM.", frappe.PermissionError)
-	context = frappe._dict()
-	context.boot = get_boot()
-	if frappe.session.user != "Guest":
-		capture("active_site", "crm")
-	return context
+    check_sales_user()  # 权限检查
+    context = frappe._dict()
+    context.boot = get_boot()
+    
+    if frappe.session.user != "Guest":
+        capture("active_site", "crm")
+    
+    return context
 
 
 @frappe.whitelist(methods=["POST"], allow_guest=True)
