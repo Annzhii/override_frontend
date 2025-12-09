@@ -8,24 +8,43 @@ from frappe import safe_decode
 from frappe.integrations.frappe_providers.frappecloud_billing import is_fc_site
 from frappe.utils import cint, get_system_timezone
 from frappe.utils.telemetry import capture
+from frappe.config import get_modules_from_all_apps_for_user
 
 no_cache = 1
 
 ALLOWED_ROLES = {"Sales User", "Sales Manager", "Sales Master Manager"}
 
+def check_app_permission():
+	if frappe.session.user == "Administrator":
+		return True
+
+	allowed_modules = get_modules_from_all_apps_for_user()
+	allowed_modules = [x["module_name"] for x in allowed_modules]
+	if "FCRM" not in allowed_modules:
+		return False
+
+	roles = frappe.get_roles()
+	if any(
+		role in ["System Manager", "Sales User", "Sales Manager"] for role in roles
+	):
+		return True
+
+	return False
+
 def get_context():
-    # 获取当前用户角色
-    user_roles = set(frappe.get_roles(frappe.session.user))
-    
-    # 如果不在允许列表中，直接抛异常
-    if not user_roles.intersection(ALLOWED_ROLES):
-        frappe.throw(_("You do not have permission to access this page."), frappe.PermissionError)
 
-    # 正常返回上下文
-    context = frappe._dict()
-    context.boot = get_boot()
+	if not check_app_permission():
+		frappe.throw(
+			_("You do not have permission to access Frappe CRM"),
+			frappe.PermissionError
+		)
 
-    return context
+	frappe.db.commit()
+	context = frappe._dict()
+	context.boot = get_boot()
+	if frappe.session.user != "Guest":
+		capture("active_site", "crm")
+	return context
 
 @frappe.whitelist(methods=["POST"], allow_guest=True)
 def get_context_for_dev():
