@@ -2,11 +2,9 @@
   <TextEditor
     ref="textEditor"
     :editor-class="[
-      'max-w-none',
+      'prose-sm max-w-none',
       editable && 'min-h-[7rem]',
-
-      // 强制内部 spacing
-      '[&_.ProseMirror] *:!m-0 !leading-[1.25]',
+      '[&_p.reply-to-content]:hidden',
     ]"
     :content="content"
     @change="editable ? (content = $event) : null"
@@ -176,6 +174,8 @@
 </template>
 
 <script setup>
+import Paragraph from '@tiptap/extension-paragraph'
+import HardBreak from '@tiptap/extension-hard-break'
 import IconPicker from '@/components/IconPicker.vue'
 import SmileIcon from '@/components/Icons/SmileIcon.vue'
 import EmailTemplateIcon from '@/components/Icons/EmailTemplateIcon.vue'
@@ -186,7 +186,6 @@ import EmailTemplateSelectorModal from '@/components/Modals/EmailTemplateSelecto
 import { TextEditorBubbleMenu, TextEditor, FileUploader, call } from 'frappe-ui'
 import { capture } from '@/telemetry'
 import { validateEmail } from '@/utils'
-import Paragraph from '@tiptap/extension-paragraph'
 import { EditorContent } from '@tiptap/vue-3'
 import { ref, computed, nextTick } from 'vue'
 
@@ -234,6 +233,13 @@ const CustomParagraph = Paragraph.extend({
             class: `${attributes.class}`,
           }
         },
+      },
+    }
+  },
+  addKeyboardShortcuts() {
+    return {
+      Enter: () => {
+        return this.editor.commands.setHardBreak()
       },
     }
   },
