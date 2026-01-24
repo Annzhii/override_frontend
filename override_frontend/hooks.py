@@ -183,7 +183,8 @@ doc_events = {
 override_whitelisted_methods = {
 	#"frappe.desk.doctype.event.event.get_events": "override_frontend.event.get_events"
     "crm.api.doc.get_assigned_users": "override_frontend.api.crm.get_assigned_users",
-    "crm.api.doc.remove_assignments": "override_frontend.api.crm.remove_assignments"
+    "crm.api.doc.remove_assignments": "override_frontend.api.crm.remove_assignments",
+    "crm.api.activities.get_activities": "override_frontend.api.activities.get_activities"
     }
 #
 # each overriding function accepts a `data` argument;

@@ -2,42 +2,21 @@
 # GNU GPLv3 License. See license.txt
 import os
 import subprocess
-from frappe import _
+
 import frappe
-from frappe import safe_decode
+from frappe import _, safe_decode
 from frappe.integrations.frappe_providers.frappecloud_billing import is_fc_site
 from frappe.utils import cint, get_system_timezone
 from frappe.utils.telemetry import capture
-from frappe.config import get_modules_from_all_apps_for_user
 
 no_cache = 1
 
-ALLOWED_ROLES = {"Sales User", "Sales Manager", "Sales Master Manager"}
-
-def check_app_permission():
-	if frappe.session.user == "Administrator":
-		return True
-
-	allowed_modules = get_modules_from_all_apps_for_user()
-	allowed_modules = [x["module_name"] for x in allowed_modules]
-	if "FCRM" not in allowed_modules:
-		return False
-
-	roles = frappe.get_roles()
-	if any(
-		role in ["System Manager", "Sales User", "Sales Manager"] for role in roles
-	):
-		return True
-
-	return False
 
 def get_context():
+	from crm.api import check_app_permission
 
 	if not check_app_permission():
-		frappe.throw(
-			_("You do not have permission to access this page"),
-			frappe.PermissionError
-		)
+		frappe.throw(_("You do not have permission to access Frappe CRM"), frappe.PermissionError)
 
 	frappe.db.commit()
 	context = frappe._dict()
@@ -46,11 +25,13 @@ def get_context():
 		capture("active_site", "crm")
 	return context
 
+
 @frappe.whitelist(methods=["POST"], allow_guest=True)
 def get_context_for_dev():
 	if not frappe.conf.developer_mode:
-		frappe.throw("This method is only meant for developer mode")
+		frappe.throw(_("This method is only meant for developer mode"))
 	return get_boot()
+
 
 def get_boot():
 	return frappe._dict(
@@ -72,8 +53,10 @@ def get_boot():
 		}
 	)
 
+
 def get_default_route():
 	return "/crm"
+
 
 def run_git_command(command):
 	try:

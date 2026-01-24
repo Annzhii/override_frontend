@@ -371,11 +371,15 @@ function getValueControl(f) {
           value: 'not set',
         },
       ],
+      modelValue: f.value,
+      'onUpdate:modelValue': (v) => updateValue(v, f),
     })
   } else if (operator == 'timespan') {
     return h(FormControl, {
       type: 'select',
       options: timespanOptions,
+      modelValue: f.value,
+      'onUpdate:modelValue': (v) => updateValue(v, f),
     })
   } else if (['like', 'not like', 'in', 'not in'].includes(operator)) {
     return h(FormControl, { type: 'text' })
@@ -388,6 +392,8 @@ function getValueControl(f) {
         label: o,
         value: o,
       })),
+      modelValue: f.value,
+      'onUpdate:modelValue': (v) => updateValue(v, f),
     })
   } else if (typeLink.includes(fieldtype)) {
     if (fieldtype == 'Dynamic Link') {

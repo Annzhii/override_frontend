@@ -174,8 +174,6 @@
 </template>
 
 <script setup>
-import Paragraph from '@tiptap/extension-paragraph'
-import HardBreak from '@tiptap/extension-hard-break'
 import IconPicker from '@/components/IconPicker.vue'
 import SmileIcon from '@/components/Icons/SmileIcon.vue'
 import EmailTemplateIcon from '@/components/Icons/EmailTemplateIcon.vue'
@@ -186,6 +184,7 @@ import EmailTemplateSelectorModal from '@/components/Modals/EmailTemplateSelecto
 import { TextEditorBubbleMenu, TextEditor, FileUploader, call } from 'frappe-ui'
 import { capture } from '@/telemetry'
 import { validateEmail } from '@/utils'
+import Paragraph from '@tiptap/extension-paragraph'
 import { EditorContent } from '@tiptap/vue-3'
 import { ref, computed, nextTick } from 'vue'
 
@@ -233,13 +232,6 @@ const CustomParagraph = Paragraph.extend({
             class: `${attributes.class}`,
           }
         },
-      },
-    }
-  },
-  addKeyboardShortcuts() {
-    return {
-      Enter: () => {
-        return this.editor.commands.setHardBreak()
       },
     }
   },
@@ -357,3 +349,10 @@ const textEditorMenuButtons = [
   ],
 ]
 </script>
+
+<style scoped>
+:deep(.ProseMirror p) {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+</style>

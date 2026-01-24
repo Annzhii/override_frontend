@@ -1279,11 +1279,6 @@
   resolved "https://registry.yarnpkg.com/@tiptap/extension-gapcursor/-/extension-gapcursor-2.26.1.tgz#7a5ebd84d4495aa8403ececd1ace51d3ba9ab139"
   integrity sha512-KOiMZc3PwJS3hR0nSq5d0TJi2jkNZkLZElcT6pCEnhRHzPH6dRMu9GM5Jj798ZRUy0T9UFcKJalFZaDxnmRnpg==
 
-"@tiptap/extension-hard-break@^2":
-  version "2.27.1"
-  resolved "https://registry.yarnpkg.com/@tiptap/extension-hard-break/-/extension-hard-break-2.27.1.tgz#823337a3b04abfee7000eb9f3677cb8e80253868"
-  integrity sha512-W4hHa4Io6QCTwpyTlN6UAvqMIQ7t56kIUByZhyY9EWrg/+JpbfpxE1kXFLPB4ZGgwBknFOw+e4bJ1j3oAbTJFw==
-
 "@tiptap/extension-hard-break@^2.26.1":
   version "2.26.1"
   resolved "https://registry.yarnpkg.com/@tiptap/extension-hard-break/-/extension-hard-break-2.26.1.tgz#70226e2b63e2252a74f6e59b5c001a4c02e0c1e5"
@@ -2577,10 +2572,10 @@ fraction.js@^4.3.7:
   resolved "https://registry.yarnpkg.com/fraction.js/-/fraction.js-4.3.7.tgz#06ca0085157e42fda7f9e726e79fefc4068840f7"
   integrity sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==
 
-frappe-ui@^0.1.201:
-  version "0.1.201"
-  resolved "https://registry.yarnpkg.com/frappe-ui/-/frappe-ui-0.1.201.tgz#12a18f08b97489facd4a170b4cbfc8adbbf1f109"
-  integrity sha512-kVz9K3W22ZuxGScSCct2kUFexZ1uZPM6FCc5BWAep3UcEzHRSbHzmLyEKCu0FKzftXtDHwNG8AoUDyHrDPkvCw==
+frappe-ui@0.1.248:
+  version "0.1.248"
+  resolved "https://registry.yarnpkg.com/frappe-ui/-/frappe-ui-0.1.248.tgz#12f391900ecd0e030ed0c4aad1d5ef405b0c4b88"
+  integrity sha512-3EY880LHce59WJu8iL8UzT6JmBqkrAq0J74GLUtOXxsxJrXewtiKKRiYS2ODLaz5oOdTzxDrx3zyrNKM9b2DiA==
   dependencies:
     "@floating-ui/vue" "^1.1.6"
     "@headlessui/vue" "^1.7.14"
@@ -2589,6 +2584,7 @@ frappe-ui@^0.1.201:
     "@tailwindcss/line-clamp" "^0.4.4"
     "@tailwindcss/typography" "^0.5.16"
     "@tiptap/core" "^2.26.1"
+    "@tiptap/extension-code" "^2.26.1"
     "@tiptap/extension-code-block" "^2.26.1"
     "@tiptap/extension-code-block-lowlight" "^2.26.1"
     "@tiptap/extension-color" "^2.26.1"

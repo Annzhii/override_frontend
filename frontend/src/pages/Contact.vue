@@ -7,6 +7,12 @@
         </template>
       </Breadcrumbs>
     </template>
+    <template #right-header>
+      <CustomActions
+        v-if="contact._actions?.length"
+        :actions="contact._actions"
+      />
+    </template>
   </LayoutHeader>
   <div v-if="contact.doc" ref="parentRef" class="flex h-full">
     <Resizer
@@ -97,6 +103,7 @@
                   @click="callEnabled && makeCall(contact.doc.mobile_no)"
                 />
                 <Button
+                  v-if="canDelete"
                   :label="__('Delete')"
                   theme="red"
                   size="sm"
@@ -120,10 +127,15 @@
         />
       </div>
     </Resizer>
-    <Tabs as="div" v-model="tabIndex" :tabs="tabs">
+    <Tabs
+      as="div"
+      v-model="tabIndex"
+      :tabs="tabs"
+      class="flex flex-1 overflow-hidden flex-col [&_[role='tab']]:px-0 [&_[role='tablist']]:px-5 [&_[role='tablist']]:gap-7.5 [&_[role='tabpanel']:not([hidden])]:flex [&_[role='tabpanel']:not([hidden])]:grow"
+    >
       <template #tab-item="{ tab, selected }">
         <button
-          class="group flex items-center gap-2 border-b border-transparent py-2.5 text-base text-ink-gray-5 duration-300 ease-in-out hover:border-outline-gray-3 hover:text-ink-gray-9"
+          class="group flex items-center gap-2 border-b border-transparent py-2.5 text-base text-ink-gray-5 duration-300 ease-in-out hover:text-ink-gray-9"
           :class="{ 'text-ink-gray-9': selected }"
         >
           <component v-if="tab.icon" :is="tab.icon" class="h-5" />
@@ -183,7 +195,13 @@ import PhoneIcon from '@/components/Icons/PhoneIcon.vue'
 import CameraIcon from '@/components/Icons/CameraIcon.vue'
 import DealsIcon from '@/components/Icons/DealsIcon.vue'
 import DealsListView from '@/components/ListViews/DealsListView.vue'
-import { formatDate, timeAgo, validateIsImageFile } from '@/utils'
+import CustomActions from '@/components/CustomActions.vue'
+import {
+  formatDate,
+  timeAgo,
+  validateIsImageFile,
+  setupCustomizations,
+} from '@/utils'
 import { getView } from '@/utils/view'
 import { useDocument } from '@/data/document'
 import { getSettings } from '@/stores/settings'
@@ -205,11 +223,11 @@ import {
   Dropdown,
   toast,
 } from 'frappe-ui'
-import { ref, computed, h } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, computed, h, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 const { brand } = getSettings()
-const { makeCall } = globalStore()
+const { makeCall, $dialog, $socket } = globalStore()
 
 const { getUser } = usersStore()
 const { getOrganization } = organizationsStore()
@@ -224,11 +242,18 @@ const props = defineProps({
 })
 
 const route = useRoute()
+const router = useRouter()
 
 const errorTitle = ref('')
 const errorMessage = ref('')
 
-const { document: contact } = useDocument('Contact', props.contactId)
+const {
+  document: contact,
+  permissions,
+  scripts,
+} = useDocument('Contact', props.contactId)
+
+const canDelete = computed(() => permissions.data?.permissions?.delete || false)
 
 const breadcrumbs = computed(() => {
   let items = [{ label: __('Contacts'), route: { name: 'Contacts' } }]
@@ -535,4 +560,26 @@ function openAddressModal(_address) {
     address: _address,
   }
 }
+
+// Setup custom actions from Form Scripts
+watch(
+  () => contact.doc,
+  async (_doc) => {
+    if (scripts.data?.length) {
+      let s = await setupCustomizations(scripts.data, {
+        doc: _doc,
+        $dialog,
+        $socket,
+        router,
+        toast,
+        updateField: contact.setValue.submit,
+        createToast: toast.create,
+        deleteDoc: deleteContact,
+        call,
+      })
+      contact._actions = s.actions || []
+    }
+  },
+  { once: true },
+)
 </script>
