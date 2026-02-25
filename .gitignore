@@ -5,3 +5,8 @@
 tags
 node_modules
 __pycache__
+
+# 忽略 override_frontend 构建产物
+override_frontend/public/frontend/assets/
+override_frontend/public/frontend/sw.js
+override_frontend/public/frontend/sw.js.map

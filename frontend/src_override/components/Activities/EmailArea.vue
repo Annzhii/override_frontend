@@ -120,7 +120,7 @@ function reply(email, reply_all = false) {
     if (email.sent_or_received ==="Received") {
       cc = cc || []
       const filteredRecipients = recipients.filter(
-        (r) => !cc.includes(r) && r !== user.email
+        (r) => !cc.includes(r) && r !== user.value.email
       )
       cc.push(...filteredRecipients)
     } else if (email.sent_or_received ==="Sent") {
