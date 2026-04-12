@@ -1,1 +1,0 @@
-if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/assets/override_frontend/frontend/sw.js', { scope: '/assets/override_frontend/frontend/' })})}

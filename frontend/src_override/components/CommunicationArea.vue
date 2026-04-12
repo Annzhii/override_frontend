@@ -23,7 +23,7 @@
     </div>
   </div>
   <div
-    v-show="showEmailBox"
+    v-if="showEmailBox"
     @keydown.ctrl.enter.capture.stop="submitEmail"
     @keydown.meta.enter.capture.stop="submitEmail"
   >
@@ -78,7 +78,7 @@
       v-model="doc"
       v-model:attachments="attachments"
       :doctype="doctype"
-      :placeholder="__('@John, can you please check this?')"
+      :placeholder="__('@Juan, can you please check this?')"
     />
   </div>
 </template>
