@@ -37,15 +37,35 @@
       }"
       :discardButtonProps="{
         onClick: async () => {
-          await deleteAttachedFiles()
-          showEmailBox = false
-          newEmailEditor.subject = subject
-          newEmailEditor.toEmails = doc.email ? [doc.email] : []
-          newEmailEditor.ccEmails = []
-          newEmailEditor.bccEmails = []
-          newEmailEditor.cc = false
-          newEmailEditor.bcc = false
-          newEmail = ''
+          try {
+            await deleteAttachedFiles()
+
+            if (!newEmailEditor) {
+              throw new Error('newEmailEditor is not initialized')
+            }
+
+            showEmailBox = false
+
+            newEmailEditor.subject = subject
+            newEmailEditor.toEmails = doc?.email ? [doc.email] : []
+            newEmailEditor.ccEmails = []
+            newEmailEditor.bccEmails = []
+            newEmailEditor.cc = false
+            newEmailEditor.bcc = false
+
+            newEmail = ''
+          } catch (err) {
+            console.error('[Discard Email Error]', err)
+
+            // 如果你在 ERPNext / Frappe 里，可以弹提示
+            if (window.frappe?.msgprint) {
+              frappe.msgprint({
+                title: 'Discard Failed',
+                message: err?.message || String(err),
+                indicator: 'red',
+              })
+            }
+          }
         },
       }"
       :editable="showEmailBox"
