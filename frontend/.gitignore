@@ -4,3 +4,9 @@ dist
 dist-ssr
 *.local
 components.d.ts
+
+override_frontend/public/frontend/sw.js.map  
+override_frontend/public/frontend/index.html
+crm/www/crm.html
+override_frontend/www/crm.html
+override_frontend/public/frontend/assets/

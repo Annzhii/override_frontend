@@ -39,12 +39,13 @@
         onClick: async () => {
           await deleteAttachedFiles()
           showEmailBox = false
-          newEmailEditor.subject = subject
-          newEmailEditor.toEmails = doc.email ? [doc.email] : []
-          newEmailEditor.ccEmails = []
-          newEmailEditor.bccEmails = []
-          newEmailEditor.cc = false
-          newEmailEditor.bcc = false
+          // 删除这些代码，因为组件即将销毁，不需要操作了
+          //newEmailEditor.subject = subject
+          //newEmailEditor.toEmails = doc.email ? [doc.email] : []
+          //newEmailEditor.ccEmails = []
+          //newEmailEditor.bccEmails = []
+          //newEmailEditor.cc = false
+          //newEmailEditor.bcc = false
           newEmail = ''
         },
       }"
@@ -165,7 +166,7 @@ function setSignature(editor) {
 watch(
   () => showEmailBox.value,
   (value) => {
-    if (value) {
+    if (value && newEmailEditor.value && newEmailEditor.value.editor) {
       let editor = newEmailEditor.value.editor
       editor.commands.focus()
       setSignature(editor)
