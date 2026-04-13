@@ -77,6 +77,7 @@
   </div>
 </template>
 <script setup>
+import { nextTick } from 'vue'
 import ReplyIcon from '@/components/Icons/ReplyIcon.vue'
 import ReplyAllIcon from '@/components/Icons/ReplyAllIcon.vue'
 import AttachmentItem from '@/components/AttachmentItem.vue'
@@ -93,7 +94,7 @@ const props = defineProps({
   emailBox: Object,
 })
 
-function reply(email, reply_all = false) {
+async function reply(email, reply_all = false) {
   props.emailBox.show = true
   let editor = props.emailBox.editor
   let message = email.content
@@ -153,11 +154,11 @@ function reply(email, reply_all = false) {
       .focus('start')
       .run()
   } else {
-    // 有内容（草稿）：只追加引用内容，不改变现有格式
+    await nextTick()
+    // 有内容（草稿）不改变现有格式
     editor.editor
       .chain()
       .focus('start')
-      .insertContent(`<br><br>${repliedMessage}`)
       .run()
   }
 }

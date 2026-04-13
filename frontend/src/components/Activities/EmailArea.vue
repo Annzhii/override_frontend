@@ -77,6 +77,7 @@
   </div>
 </template>
 <script setup>
+import { nextTick } from 'vue'
 import ReplyIcon from '@/components/Icons/ReplyIcon.vue'
 import ReplyAllIcon from '@/components/Icons/ReplyAllIcon.vue'
 import AttachmentItem from '@/components/AttachmentItem.vue'
@@ -93,7 +94,7 @@ const props = defineProps({
   emailBox: Object,
 })
 
-function reply(email, reply_all = false) {
+async function reply(email, reply_all = false) {
   props.emailBox.show = true
   let editor = props.emailBox.editor
   let message = email.content
@@ -123,6 +124,7 @@ function reply(email, reply_all = false) {
         (r) => !cc.includes(r) && r !== user.value.email
       )
       cc.push(...filteredRecipients)
+      cc = cc.filter((r) => r !== user.value.email)
     } else if (email.sent_or_received ==="Sent") {
       cc = cc || []
       cc.push(...[email.sender])
@@ -137,6 +139,7 @@ function reply(email, reply_all = false) {
   }
 
   let repliedMessage = `<blockquote>${message}</blockquote>`
+
   const hasContent = editor.editor.getText().trim().length > 0
 
   if (!hasContent) {
@@ -151,11 +154,11 @@ function reply(email, reply_all = false) {
       .focus('start')
       .run()
   } else {
-    // 有内容（草稿）：只追加引用内容，不改变现有格式
+    await nextTick()
+    // 有内容（草稿）不改变现有格式
     editor.editor
       .chain()
-      .focus('end')
-      .insertContent(`<br><br>${repliedMessage}`)
+      .focus('start')
       .run()
   }
 }
