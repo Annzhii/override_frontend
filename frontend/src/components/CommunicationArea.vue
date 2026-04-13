@@ -41,7 +41,7 @@
           await deleteAttachedFiles()
           newEmailKey()
           showEmailBox = false
-          newEmail = '1'
+          newEmail = ''
           newEmailEditor.subject = subject
           newEmailEditor.toEmails = doc.email ? [doc.email] : []
           newEmailEditor.ccEmails = []

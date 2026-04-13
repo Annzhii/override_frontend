@@ -137,17 +137,27 @@ function reply(email, reply_all = false) {
   }
 
   let repliedMessage = `<blockquote>${message}</blockquote>`
+  const hasContent = editor.editor.getText().trim().length > 0
 
-  editor.editor
-    .chain()
-    .clearContent()
-    .insertContent('<p>.</p>')
-    .updateAttributes('paragraph', { class: 'reply-to-content' })
-    .insertContent(repliedMessage)
-    .focus('all')
-    .insertContentAt(0, { type: 'paragraph' })
-    .focus('start')
-    .run()
+  if (!hasContent) {
+    // 没有内容：完整初始化回复格式
+    editor.editor
+      .chain()
+      .insertContent('<p>.</p>')
+      .updateAttributes('paragraph', { class: 'reply-to-content' })
+      .insertContent(repliedMessage)
+      .focus('all')
+      .insertContentAt(0, { type: 'paragraph' })
+      .focus('start')
+      .run()
+  } else {
+    // 有内容（草稿）：只追加引用内容，不改变现有格式
+    editor.editor
+      .chain()
+      .focus('end')
+      .insertContent(`<br><br>${repliedMessage}`)
+      .run()
+  }
 }
 
 const status = computed(() => {

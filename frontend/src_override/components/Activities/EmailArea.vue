@@ -123,6 +123,7 @@ function reply(email, reply_all = false) {
         (r) => !cc.includes(r) && r !== user.value.email
       )
       cc.push(...filteredRecipients)
+      cc = cc.filter((r) => r !== user.value.email)
     } else if (email.sent_or_received ==="Sent") {
       cc = cc || []
       cc.push(...[email.sender])
@@ -138,16 +139,27 @@ function reply(email, reply_all = false) {
 
   let repliedMessage = `<blockquote>${message}</blockquote>`
 
-  editor.editor
-    .chain()
-    .clearContent()
-    .insertContent('<p>.</p>')
-    .updateAttributes('paragraph', { class: 'reply-to-content' })
-    .insertContent(repliedMessage)
-    .focus('all')
-    .insertContentAt(0, { type: 'paragraph' })
-    .focus('start')
-    .run()
+  const hasContent = editor.editor.getText().trim().length > 0
+
+  if (!hasContent) {
+    // 没有内容：完整初始化回复格式
+    editor.editor
+      .chain()
+      .insertContent('<p>.</p>')
+      .updateAttributes('paragraph', { class: 'reply-to-content' })
+      .insertContent(repliedMessage)
+      .focus('all')
+      .insertContentAt(0, { type: 'paragraph' })
+      .focus('start')
+      .run()
+  } else {
+    // 有内容（草稿）：只追加引用内容，不改变现有格式
+    editor.editor
+      .chain()
+      .focus('start')
+      .insertContent(`<br><br>${repliedMessage}`)
+      .run()
+  }
 }
 
 const status = computed(() => {
