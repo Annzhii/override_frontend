@@ -23,13 +23,14 @@
     </div>
   </div>
   <div
-    v-if="showEmailBox"
+    v-show="showEmailBox"
     @keydown.ctrl.enter.capture.stop="submitEmail"
     @keydown.meta.enter.capture.stop="submitEmail"
   >
     <EmailEditor
       ref="newEmailEditor"
       v-model:content="newEmail"
+      :key="editorKey"
       :submitButtonProps="{
         variant: 'solid',
         onClick: submitEmail,
@@ -38,15 +39,15 @@
       :discardButtonProps="{
         onClick: async () => {
           await deleteAttachedFiles()
+          newEmailKey()
           showEmailBox = false
-          // 删除这些代码，因为组件即将销毁，不需要操作了
-          //newEmailEditor.subject = subject
-          //newEmailEditor.toEmails = doc.email ? [doc.email] : []
-          //newEmailEditor.ccEmails = []
-          //newEmailEditor.bccEmails = []
-          //newEmailEditor.cc = false
-          //newEmailEditor.bcc = false
           newEmail = ''
+          newEmailEditor.subject = subject
+          newEmailEditor.toEmails = doc.email ? [doc.email] : []
+          newEmailEditor.ccEmails = []
+          newEmailEditor.bccEmails = []
+          newEmailEditor.cc = false
+          newEmailEditor.bcc = false
         },
       }"
       :editable="showEmailBox"
@@ -95,6 +96,12 @@ import { useStorage } from '@vueuse/core'
 import { call, createResource } from 'frappe-ui'
 import { useOnboarding } from 'frappe-ui/frappe'
 import { ref, watch, computed } from 'vue'
+
+const editorKey = ref(false)
+
+function newEmailKey() {
+  editorKey.value = !editorKey.value   // 强制重建
+}
 
 const props = defineProps({
   doctype: {
