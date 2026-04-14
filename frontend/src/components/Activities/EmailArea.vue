@@ -120,11 +120,16 @@ async function reply(email, reply_all = false) {
 
     if (email.sent_or_received ==="Received") {
       cc = cc || []
+      cc = cc.filter((r) => r !== user.value.email)
+      console.log('当前用户 email:', user.value.email)
+      console.log('cc:', cc)
+      console.log('recipients', recipients)
       const filteredRecipients = recipients.filter(
         (r) => !cc.includes(r) && r !== user.value.email
       )
+      console.log('filteredRecipients', filteredRecipients)
       cc.push(...filteredRecipients)
-      cc = cc.filter((r) => r !== user.value.email)
+      console.log('cc:', cc)
     } else if (email.sent_or_received ==="Sent") {
       cc = cc || []
       cc.push(...[email.sender])
