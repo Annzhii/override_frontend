@@ -94,6 +94,12 @@ const props = defineProps({
   emailBox: Object,
 })
 
+const extractEmail = (emailString) => {
+  if (!emailString) return ''
+  const match = emailString.match(/<(.+?)>/)
+  return match ? match[1] : emailString.trim()
+}
+
 async function reply(email, reply_all = false) {
   props.emailBox.show = true
   let editor = props.emailBox.editor
@@ -121,12 +127,14 @@ async function reply(email, reply_all = false) {
     if (email.sent_or_received ==="Received") {
       cc = cc || []
       console.log('cc1:', cc)
-      cc = cc.filter((r) => r !== user.value.email)
+      cc = cc.filter((r) => extractEmail(r) !== user.value.email)
       console.log('cc2:', cc) 
       console.log('user.value.email', user.value.email)
-      const filteredRecipients = recipients.filter(
-        (r) => !cc.includes(r) && r !== user.value.email
-      )
+      const filteredRecipients = recipients.filter((r) => {
+        const recipientEmail = extractEmail(r)
+        const ccEmails = cc.map(extractEmail)
+        return !ccEmails.includes(recipientEmail) && recipientEmail !== user.value.email
+      })
       console.log('filteredRecipients:', filteredRecipients)
       cc.push(...filteredRecipients)
       console.log('cc3:', cc)
