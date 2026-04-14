@@ -122,7 +122,8 @@ async function reply(email, reply_all = false) {
       cc = cc || []
       console.log('cc1:', cc)
       cc = cc.filter((r) => r !== user.value.email)
-      console.log('cc2:', cc)
+      console.log('cc2:', cc) 
+      console.log('user.value.email', user.value.email)
       const filteredRecipients = recipients.filter(
         (r) => !cc.includes(r) && r !== user.value.email
       )
