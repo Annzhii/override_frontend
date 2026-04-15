@@ -126,18 +126,9 @@ async function reply(email, reply_all = false) {
 
     if (email.sent_or_received ==="Received") {
       cc = cc || []
-      console.log('cc1:', cc)
       cc = cc.filter((r) => extractEmail(r) !== user.value.email)
-      console.log('cc2:', cc) 
-      console.log('user.value.email', user.value.email)
-      const filteredRecipients = recipients.filter((r) => {
-        const recipientEmail = extractEmail(r)
-        const ccEmails = cc.map(extractEmail)
-        return !ccEmails.includes(recipientEmail) && recipientEmail !== user.value.email
-      })
-      console.log('filteredRecipients:', filteredRecipients)
+      const filteredRecipients = recipients.filter((r) => extractEmail(r) !== user.value.email)
       cc.push(...filteredRecipients)
-      console.log('cc3:', cc)
     } else if (email.sent_or_received ==="Sent") {
       cc = cc || []
       cc.push(...[email.sender])
