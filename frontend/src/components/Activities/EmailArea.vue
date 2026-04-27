@@ -100,10 +100,39 @@ const extractEmail = (emailString) => {
   return match ? match[1] : emailString.trim()
 }
 
+function cleanEmailHTML(html) {
+  if (!html) return ''
+
+  return html
+    // ① 删除空 div 或只有 br 的 div（最关键）
+    .replace(/<div[^>]*>\s*(<br\s*\/?>|&nbsp;|\s)*\s*<\/div>/gi, '')
+
+    // ② 把 div（带内容）转成 p
+    .replace(/<div[^>]*>/gi, '<p>')
+    .replace(/<\/div>/gi, '</p>')
+
+    // ③ 删除段落结尾的 <br>（避免生成空 p）
+    .replace(/<br>\s*<\/p>/gi, '</p>')
+
+    // ④ 删除“只有空白”的段落（重点）
+    .replace(/<p>(&nbsp;|\s)*<\/p>/gi, '')
+
+    // ⑤ 删除“只有 br 的段落”
+    //.replace(/<p>\s*<br\s*\/?>\s*<\/p>/gi, '')
+
+    // ⑥ 合并多余换行
+    .replace(/(<br\s*\/?>\s*){2,}/gi, '<br>')
+
+    // ⑦ 清理换行符
+    .replace(/\n/g, '')
+
+    .trim()
+}
+
 async function reply(email, reply_all = false) {
   props.emailBox.show = true
   let editor = props.emailBox.editor
-  let message = email.content
+  let message = cleanEmailHTML(email.content)
   let recipients = email.recipients.split(',').map((r) => r.trim())
   if (email.sent_or_received === "Received") {
     editor.toEmails = [email.sender]
@@ -126,14 +155,9 @@ async function reply(email, reply_all = false) {
 
     if (email.sent_or_received ==="Received") {
       cc = cc || []
-      console.log('cc1:', cc)
       cc = cc.filter((r) => extractEmail(r) !== user.value.email)
-      console.log('cc2:', cc) 
-      console.log('user.value.email', user.value.email)
       const filteredRecipients = recipients.filter((r) => extractEmail(r) !== user.value.email)
-      console.log('filteredRecipients:', filteredRecipients)
       cc.push(...filteredRecipients)
-      console.log('cc3:', cc)
     } else if (email.sent_or_received ==="Sent") {
       cc = cc || []
       cc.push(...[email.sender])

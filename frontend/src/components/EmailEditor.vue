@@ -10,7 +10,7 @@
     @change="editable ? (content = $event) : null"
     :starterkit-options="{
       heading: { levels: [2, 3, 4, 5, 6] },
-      paragraph: false,
+      paragraph: true,
     }"
     :placeholder="placeholder"
     :editable="editable"
