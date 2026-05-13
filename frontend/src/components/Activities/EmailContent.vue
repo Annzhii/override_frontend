@@ -164,13 +164,10 @@ const htmlContent = `
 
     .email-content
         :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
-    width: unset;
-    table-layout: auto;
-    text-align: unset;
-    margin-top: unset;
-    margin-bottom: unset;
-    font-size: unset;
-    line-height: unset;
+    display: block;
+    width: 100% !important;
+    overflow-x: auto;  /* 小屏时可横向滚动 */
+    white-space: nowrap;
     }
 
     /* tr */

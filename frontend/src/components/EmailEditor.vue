@@ -14,7 +14,9 @@
     }"
     :placeholder="placeholder"
     :editable="editable"
-    :extensions="[CustomParagraph]"
+    :extensions="[
+      PreserveTableStyle,
+    ]"
   >
     <template #top>
       <div class="flex flex-col gap-3">
@@ -185,6 +187,8 @@ import { TextEditorBubbleMenu, TextEditor, FileUploader, call } from 'frappe-ui'
 import { capture } from '@/telemetry'
 import { validateEmail } from '@/utils'
 import Paragraph from '@tiptap/extension-paragraph'
+// 添加拓展
+import { Extension } from '@tiptap/core'
 import { EditorContent } from '@tiptap/vue-3'
 import { ref, computed, nextTick } from 'vue'
 
@@ -218,22 +222,48 @@ const props = defineProps({
     default: () => ({}),
   },
 })
+//添加拓展
+function preserveAttrs() {
+  return {
+    class: {
+      default: null,
 
-const CustomParagraph = Paragraph.extend({
-  addAttributes() {
-    return {
-      class: {
-        default: null,
-        renderHTML: (attributes) => {
-          if (!attributes.class) {
-            return {}
-          }
-          return {
-            class: `${attributes.class}`,
-          }
-        },
+      parseHTML: element => element.getAttribute('class'),
+
+      renderHTML: attributes => {
+        if (!attributes.class) return {}
+        return {
+          class: attributes.class,
+        }
       },
-    }
+    },
+
+    style: {
+      default: null,
+
+      parseHTML: element => element.getAttribute('style'),
+
+      renderHTML: attributes => {
+        if (!attributes.style) return {}
+        return {
+          style: attributes.style,
+        }
+      },
+    },
+  }
+}
+
+const PreserveTableStyle = Extension.create({
+  name: 'preserveTableStyle',
+  
+  addGlobalAttributes() {
+    return [
+      {
+        // 使用 Tiptap 内部的节点名称
+        types: ['table', 'tableRow', 'tableCell', 'tableHeader'],
+        attributes: preserveAttrs(),
+      },
+    ]
   },
 })
 
@@ -354,5 +384,10 @@ const textEditorMenuButtons = [
 :deep(.ProseMirror p) {
   margin-top: 0;
   margin-bottom: 0;
+}
+
+:deep(.prose-sm blockquote p:first-of-type::before),
+:deep(.prose-sm blockquote p:last-of-type::after) {
+  content: none !important;
 }
 </style>

@@ -138,6 +138,7 @@ def get_deal_activities(name):
 				"read_by_recipient": communication.read_by_recipient,
 				"delivery_status": communication.delivery_status,
 				"sent_or_received": communication.sent_or_received,
+				"communication_date": communication.communication_date,
 			},
 			"is_lead": False,
 		}
@@ -271,6 +272,7 @@ def get_lead_activities(name):
 				"read_by_recipient": communication.read_by_recipient,
 				"delivery_status": communication.delivery_status,
 				"sent_or_received": communication.sent_or_received,
+				"communication_date": communication.communication_date,
 			},
 			"is_lead": True,
 		}

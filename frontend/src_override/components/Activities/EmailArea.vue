@@ -99,11 +99,269 @@ const extractEmail = (emailString) => {
   const match = emailString.match(/<(.+?)>/)
   return match ? match[1] : emailString.trim()
 }
+function normalizeForTiptap(html) {
+  if (!html) return ''
+
+  const parser = new DOMParser()
+  const doc = parser.parseFromString(html, 'text/html')
+
+  /**
+   * unwrap node
+   * <div><table></table></div>
+   * =>
+   * <table></table>
+   */
+  function unwrap(el) {
+    while (el.firstChild) {
+      el.parentNode.insertBefore(el.firstChild, el)
+    }
+
+    el.remove()
+  }
+
+  /**
+   * div -> p
+   */
+  function convertDivToParagraph(div) {
+    const p = doc.createElement('p')
+
+    while (div.firstChild) {
+      p.appendChild(div.firstChild)
+    }
+
+    div.replaceWith(p)
+  }
+
+  /**
+   * 是否纯文本 block
+   */
+  function isTextBlock(el) {
+    return !el.querySelector(
+      'table,ul,ol,img,video,iframe'
+    )
+  }
+
+  /**
+   * 删除尾部空白 text node
+   */
+  function removeTrailingWhitespace(el) {
+    while (
+      el.lastChild &&
+      el.lastChild.nodeType === Node.TEXT_NODE &&
+      !el.lastChild.textContent
+        .replace(/\u00A0/g, '')
+        .trim()
+    ) {
+      el.lastChild.remove()
+    }
+  }
+
+  /**
+   * 删除尾部 br
+   * <p>Hello<br></p>
+   * =>
+   * <p>Hello</p>
+   */
+  function removeTrailingBR(el) {
+
+    while (true) {
+
+      // 先删尾部 whitespace
+      removeTrailingWhitespace(el)
+
+      // 再删 br
+      if (
+        el.lastChild &&
+        el.lastChild.nodeName === 'BR'
+      ) {
+        el.lastChild.remove()
+        continue
+      }
+
+      break
+    }
+  }
+
+  /**
+   * 是否空 block
+   */
+  function isEmptyBlock(el) {
+
+    const clone = el.cloneNode(true)
+
+    clone.querySelectorAll('br').forEach(br => br.remove())
+
+    const text = clone.textContent
+      .replace(/\u00A0/g, '')
+      .trim()
+
+    return (
+      !text &&
+      !clone.querySelector(
+        'img,table,iframe,video,ul,ol'
+      )
+    )
+  }
+
+  /**
+   * unwrap section/article
+   */
+  doc
+    .querySelectorAll('section,article')
+    .forEach(unwrap)
+
+  /**
+   * normalize div
+   */
+  doc.querySelectorAll('div').forEach(div => {
+
+    // 先删尾部 br
+    removeTrailingBR(div)
+
+    // 空 div -> p
+    if (isEmptyBlock(div)) {
+      const p = doc.createElement('p')
+      div.replaceWith(p)
+      return
+    }
+
+    // layout div
+    if (
+      div.children.length === 1 &&
+      ['TABLE', 'UL', 'OL'].includes(
+        div.firstElementChild.nodeName
+      )
+    ) {
+      unwrap(div)
+      return
+    }
+
+    // 纯文本 div -> p
+    if (isTextBlock(div)) {
+      convertDivToParagraph(div)
+      return
+    }
+
+    // 混合结构 div
+    unwrap(div)
+  })
+
+  /**
+   * normalize p
+   */
+  doc.querySelectorAll('p').forEach(p => {
+
+    // 删除尾部 br
+    removeTrailingBR(p)
+
+    // 空 p
+    if (isEmptyBlock(p)) {
+      p.innerHTML = ''
+    }
+  })
+
+  /**
+   * 删除无意义 whitespace text node
+   */
+  const walker = doc.createTreeWalker(
+    doc.body,
+    NodeFilter.SHOW_TEXT,
+  )
+
+  const removeNodes = []
+
+  while (walker.nextNode()) {
+
+    const node = walker.currentNode
+
+    if (
+      !node.textContent
+        .replace(/\u00A0/g, '')
+        .trim()
+    ) {
+      removeNodes.push(node)
+    }
+  }
+
+  removeNodes.forEach(node => node.remove())
+
+  /**
+   * trim p 首尾换行/缩进
+   * （因为 ProseMirror 是 white-space: pre-wrap）
+   */
+  doc.querySelectorAll('p').forEach(p => {
+
+    if (
+      p.childNodes.length === 1 &&
+      p.firstChild.nodeType === Node.TEXT_NODE
+    ) {
+      p.textContent = p.textContent.trim()
+    }
+
+  })
+
+  /**
+   * collapse 连续空 p
+   */
+  let prevEmpty = false
+
+  doc.querySelectorAll('p').forEach(p => {
+
+    const empty =
+      !p.textContent.trim() &&
+      !p.querySelector('img')
+
+    if (empty) {
+
+      if (prevEmpty) {
+        p.remove()
+        return
+      }
+
+      prevEmpty = true
+      return
+    }
+
+    prevEmpty = false
+  })
+
+  return doc.body.innerHTML
+}
 
 async function reply(email, reply_all = false) {
+  function escapeHTML(str = '') {
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+  }
+
+  function normalizeEmails(value) {
+    if (!value) return ''
+
+    return value
+      .split(/[\n,;]+/)
+      .map((v) => escapeHTML(v.trim()))
+      .filter(Boolean)
+      .join(', ')
+  }
+  const from = normalizeEmails(email.sender)
+  const to = normalizeEmails(email.recipients)
+  const cc = normalizeEmails(email.cc)
+  const subject = email.subject || ''
+  const date = (email.communication_date || '').slice(0, 16)
+  const replyHeader = [
+    `<p>------------------ Original Message ------------------</p>`,
+    `<p><strong>From:</strong> ${from}</p>`,
+    `<p><strong>Date:</strong> ${date}</p>`,
+    `<p><strong>To:</strong> ${to}</p>`,
+    cc ? `<p><strong>Cc:</strong> ${cc}</p>` : '',
+    `<p><strong>Subject:</strong> ${subject}</p>`
+  ].join('')
+
   props.emailBox.show = true
   let editor = props.emailBox.editor
-  let message = email.content
+  let message = normalizeForTiptap(email.content)
   let recipients = email.recipients.split(',').map((r) => r.trim())
   if (email.sent_or_received === "Received") {
     editor.toEmails = [email.sender]
@@ -142,7 +400,11 @@ async function reply(email, reply_all = false) {
     editor.bccEmails = bcc
   }
 
-  let repliedMessage = `<blockquote>${message}</blockquote>`
+  let repliedMessage = `<blockquote>
+  ${replyHeader}
+  <p></p>
+  ${message}
+  </blockquote>`
 
   const hasContent = editor.editor.getText().trim().length > 0
 
@@ -153,7 +415,6 @@ async function reply(email, reply_all = false) {
       .insertContent('<p>.</p>')
       .updateAttributes('paragraph', { class: 'reply-to-content' })
       .insertContent(repliedMessage)
-      .focus('all')
       .insertContentAt(0, { type: 'paragraph' })
       .focus('start')
       .run()

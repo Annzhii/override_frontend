@@ -319,10 +319,11 @@ function normalizeEmptyParagraphs(html) {
   doc.body.innerHTML = html
 
   doc.querySelectorAll('p').forEach((p) => {
+    // 获取纯文本（去掉 &nbsp; 和首尾空格）
     const text = p.textContent?.replace(/\u00a0/g, '').trim()
-
-    // 空白或者里面只有 <br>
-    if (!text || p.querySelector('br')) {
+    
+    // 只有当段落完全没有文字内容时才处理
+    if (!text) {
       p.innerHTML = '&nbsp;'
     }
   })
