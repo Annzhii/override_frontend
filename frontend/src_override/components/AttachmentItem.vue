@@ -1,5 +1,5 @@
 <template>
-  <span class="max-w-80">
+  <span class="max-w-72">
     <a :href="isShowable ? null : url" target="_blank">
       <Button
         :label="label"
