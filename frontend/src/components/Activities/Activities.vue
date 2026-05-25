@@ -111,7 +111,7 @@
         class="activity px-3 sm:px-10"
         :class="
           ['Activity', 'Emails'].includes(title)
-            ? 'grid grid-cols-[30px_minmax(auto,_1fr)] gap-2 sm:gap-4'
+            ? 'grid grid-cols-[30px_minmax(0,_1fr)] gap-2 sm:gap-4'
             : ''
         "
       >

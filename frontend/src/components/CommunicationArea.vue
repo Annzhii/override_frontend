@@ -272,6 +272,7 @@ async function submitEmail() {
   showEmailBox.value = false
   await sendMail()
   newEmail.value = ''
+  newEmailKey()
   attachments.value = []
   reload.value = true
   emit('scroll')
