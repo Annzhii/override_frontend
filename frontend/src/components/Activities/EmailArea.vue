@@ -402,7 +402,7 @@ async function reply(email, reply_all = false) {
 
   let repliedMessage = `<blockquote>
   ${replyHeader}
-  <p></p>
+  <p>1</p>
   ${message}
   </blockquote>`
 
@@ -415,6 +415,7 @@ async function reply(email, reply_all = false) {
       .insertContent('<p>.</p>')
       .updateAttributes('paragraph', { class: 'reply-to-content' })
       .insertContent(repliedMessage)
+      .focus('all')
       .insertContentAt(0, { type: 'paragraph' })
       .focus('start')
       .run()

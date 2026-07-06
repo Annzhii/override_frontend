@@ -260,7 +260,7 @@ const PreserveTableStyle = Extension.create({
     return [
       {
         // 使用 Tiptap 内部的节点名称
-        types: ['table', 'tableRow', 'tableCell', 'tableHeader'],
+        types: ['table', 'tableRow', 'tableCell', 'tableHeader', 'paragraph'],
         attributes: preserveAttrs(),
       },
     ]
