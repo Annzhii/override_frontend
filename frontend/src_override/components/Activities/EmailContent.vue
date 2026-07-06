@@ -29,6 +29,7 @@ const gmailReplyToContent = doc.querySelectorAll('div.gmail_quote')
 const outlookReplyToContent = doc.querySelectorAll('div#appendonsend')
 const replyToContent = doc.querySelectorAll('p.reply-to-content')
 const originalMessageContent = doc.querySelectorAll('div.original_message') //fu_tong_tian_xia
+const MsoNormalContent =doc.querySelectorAll( 'p.MsoNormal')
 
 if (gmailReplyToContent.length) {
   _content.value = parseReplyToContent(doc, 'div.gmail_quote', true)
@@ -38,6 +39,8 @@ if (gmailReplyToContent.length) {
   _content.value = parseReplyToContent(doc, 'p.reply-to-content')
 } else if (originalMessageContent.length) {
   _content.value = parseReplyToContent(doc, 'div.original_message')
+} else if (MsoNormalContent.length) {
+  _content.value = parseReplyToContent(doc, 'p.MsoNormal')
 }
 
 function parseReplyToContent(doc, selector, forGmail = false) {
