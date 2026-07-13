@@ -104,13 +104,6 @@ function normalizeForTiptap(html) {
 
   const parser = new DOMParser()
   const doc = parser.parseFromString(html, 'text/html')
-
-  /**
-   * unwrap node
-   * <div><table></table></div>
-   * =>
-   * <table></table>
-   */
   function unwrap(el) {
     while (el.firstChild) {
       el.parentNode.insertBefore(el.firstChild, el)
@@ -118,10 +111,6 @@ function normalizeForTiptap(html) {
 
     el.remove()
   }
-
-  /**
-   * div -> p
-   */
   function convertDivToParagraph(div) {
     const p = doc.createElement('p')
 
@@ -131,19 +120,11 @@ function normalizeForTiptap(html) {
 
     div.replaceWith(p)
   }
-
-  /**
-   * 是否纯文本 block
-   */
   function isTextBlock(el) {
     return !el.querySelector(
       'table,ul,ol,img,video,iframe'
     )
   }
-
-  /**
-   * 删除尾部空白 text node
-   */
   function removeTrailingWhitespace(el) {
     while (
       el.lastChild &&
@@ -155,21 +136,10 @@ function normalizeForTiptap(html) {
       el.lastChild.remove()
     }
   }
-
-  /**
-   * 删除尾部 br
-   * <p>Hello<br></p>
-   * =>
-   * <p>Hello</p>
-   */
   function removeTrailingBR(el) {
 
     while (true) {
-
-      // 先删尾部 whitespace
       removeTrailingWhitespace(el)
-
-      // 再删 br
       if (
         el.lastChild &&
         el.lastChild.nodeName === 'BR'
@@ -181,10 +151,6 @@ function normalizeForTiptap(html) {
       break
     }
   }
-
-  /**
-   * 是否空 block
-   */
   function isEmptyBlock(el) {
 
     const clone = el.cloneNode(true)
@@ -202,10 +168,6 @@ function normalizeForTiptap(html) {
       )
     )
   }
-
-  /**
-   * unwrap section/article
-   */
   doc
     .querySelectorAll('section,article')
     .forEach(unwrap)
@@ -325,6 +287,12 @@ function normalizeForTiptap(html) {
     prevEmpty = false
   })
 
+  doc.querySelectorAll('td, th').forEach(cell => {
+    if (!cell.firstElementChild && !cell.textContent.trim()) {
+      cell.appendChild(doc.createElement('p'))
+    }
+  })
+  
   return doc.body.innerHTML
 }
 
@@ -402,7 +370,7 @@ async function reply(email, reply_all = false) {
 
   let repliedMessage = `<blockquote>
   ${replyHeader}
-  <p>1</p>
+  <p></p>
   ${message}
   </blockquote>`
 
@@ -412,7 +380,7 @@ async function reply(email, reply_all = false) {
     // 没有内容：完整初始化回复格式
     editor.editor
       .chain()
-      .insertContent('<p>.</p>')
+      .insertContent('<p>&nbsp;</p>')
       .updateAttributes('paragraph', { class: 'reply-to-content' })
       .insertContent(repliedMessage)
       .focus('all')
